@@ -145,7 +145,8 @@ const login = async () => {
     // 登录失败的提示信息
     ElNotification({
       type: "error",
-      message: error.message,
+      // message: error.message,
+      message: "登录失败！",
     });
   } finally {
     // 不论登录成功失败加载效果消失

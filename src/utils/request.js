@@ -37,6 +37,8 @@ request.interceptors.request.use((config) => {
 //         // 定义一个变量存储网络错误信息
 //         let msg = "";
 //         let status = error.response.status;
+//         console.log(status)
+
 //         switch (status) {
 //             case 401:
 //                 msg = "token过期";

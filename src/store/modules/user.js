@@ -1,7 +1,7 @@
 // user小仓库，存放与user有关的信息
 import { defineStore } from "pinia";
 // 引入接口方法
-import { reqLogin,reqRegister } from "@/api/user";
+import { reqLogin, reqRegister } from "@/api/user";
 // 引入本地存储保存和获取token的方法
 import { SET_TOKEN, GET_TOKEN, REMOVE_TOKEN } from "@/utils/token";
 
@@ -30,7 +30,6 @@ const useUserStore = defineStore('user', {
         // 定义方法发送注册请求
         async userRegister(data) {
             let result = await reqRegister(data)
-            console.log(result)
             // 成功
             if (result.status === 0) {
                 return "ok";
