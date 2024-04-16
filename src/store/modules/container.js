@@ -8,7 +8,7 @@ const useContainerStore = defineStore('container', {
             containerHeight: 1050,
             containerScale: 1,
             operator: {
-                isShowOperator: false,
+                isShowOperator: true,
                 // 页面尺寸选择框数据列表
                 pageSizeArr: [
                     {
@@ -87,3 +87,4 @@ const useContainerStore = defineStore('container', {
 
 // 导出
 export default useContainerStore
+

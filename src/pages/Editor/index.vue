@@ -3,7 +3,9 @@
     <EditorTop></EditorTop>
     <div class="center">
       <EditorLeft></EditorLeft>
-      <EditorContainer></EditorContainer>
+      <EditorContainer
+        :key="blockStore.editorContainerKey"
+      ></EditorContainer>
       <EditorRight></EditorRight>
     </div>
     <EditorBottom></EditorBottom>
@@ -17,6 +19,10 @@ import EditorLeft from "@/pages/Editor/EditorLeft/index.vue";
 import EditorContainer from "@/pages/Editor/EditorContainer/index.vue";
 import EditorRight from "@/pages/Editor/EditorRight/index.vue";
 import EditorBottom from "@/pages/Editor/EditorBottom/index.vue";
+// 引入仓库
+import useBlockStore from "@/store/modules/block";
+const blockStore = useBlockStore();
+
 
 //鼠标滚轮事件(阻止用户鼠标缩放行为)
 const handlerWheel = (e) => {
@@ -25,6 +31,8 @@ const handlerWheel = (e) => {
     e.preventDefault();
   }
 };
+
+
 </script>
 
 <style lang="scss" scoped>

@@ -2,8 +2,12 @@
 <template>
   <!-- 右侧操作区 -->
   <div class="editor-right" v-if="containerStore.operator.isShowOperator">
-    <el-tabs type="border-card" stretch>
-      <el-tab-pane label="绘图">
+    <el-tabs
+      type="border-card"
+      stretch
+      v-if="blockStore.lastSelectBlock === null"
+    >
+      <el-tab-pane label="画布">
         <!-- 调节页面尺寸 -->
         <div class="page_size">
           <h5 class="title">页面尺寸</h5>
@@ -130,15 +134,66 @@
           </div>
         </div>
       </el-tab-pane>
-      <el-tab-pane label="样式"></el-tab-pane>
+      <!-- <el-tab-pane label="样式"></el-tab-pane> -->
+    </el-tabs>
+    <el-tabs type="border-card" stretch v-else>
+      <el-tab-pane label="样式">
+        <el-form labelPosition="top">
+          <el-form-item v-for="item in content" :label="item.propConfig.label">
+            <ElInput
+              v-if="item.propConfig.type === 'input'"
+              v-model="blockStore.lastSelectBlock.props[item.propName]"
+            ></ElInput>
+            <ElColorPicker
+              v-else-if="item.propConfig.type === 'color'"
+              v-model="blockStore.lastSelectBlock.props[item.propName]"
+            ></ElColorPicker>
+            <ElSelect
+              v-else-if="item.propConfig.type === 'select'"
+              v-model="blockStore.lastSelectBlock.props[item.propName]"
+            >
+              <ElOption
+                v-for="option in item.propConfig.options"
+                :label="option.label"
+                :value="option.value"
+              ></ElOption>
+            </ElSelect>
+          </el-form-item>
+        </el-form>
+      </el-tab-pane>
     </el-tabs>
   </div>
 </template>
 
 <script setup>
+import { computed } from "vue";
 // 引入仓库
 import useContainerStore from "@/store/modules/container";
 const containerStore = useContainerStore();
+import useBlockStore from "@/store/modules/block";
+const blockStore = useBlockStore();
+// 引入命令
+import useCommand from "@/hooks/useCommand.js";
+
+// 引入配置文件
+import { config } from "@/utils/config.js";
+const component = computed(() => {
+  if (blockStore.lastSelectBlock) {
+    return config.componentMap[blockStore.lastSelectBlock.key];
+  }
+});
+const content = computed(() => {
+  if (component.value && component.value.props) {
+    return Object.entries(component.value.props).map(
+      ([propName, propConfig]) => {
+        return { propName, propConfig };
+      }
+    );
+  } else {
+    return [];
+  }
+});
+
 // 预设页面大小选项的改变
 function presetChange() {
   let presetCanvasSize = containerStore.operator.pageSizeValue.split(" ");

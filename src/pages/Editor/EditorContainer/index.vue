@@ -34,11 +34,14 @@
             <BackgroundGrid></BackgroundGrid>
             <Block
               v-for="(block, index) in blockStore.blockList"
-              :key="index"
+              :key="`${blockStore.blockKey}${index}`"
               :data="block"
               @mousedown="handleBlockMousedown($event, block, index)"
               :class="block.focus ? 'block-focus' : ''"
-            ></Block>
+              @contextmenu.prevent="handelBlockContextmenu($event, block)"
+            >
+              <BlockResize v-if="block.focus" :block="block"></BlockResize>
+            </Block>
             <!-- 辅助线 -->
             <!-- 水平线 -->
             <div
@@ -60,7 +63,7 @@
 </template>
 
 <script setup>
-import { computed, ref, reactive, onMounted, nextTick } from "vue";
+import { computed, ref, reactive, onMounted, nextTick, watchEffect } from "vue";
 import { SketchRule } from "vue3-sketch-ruler";
 import "vue3-sketch-ruler/lib/style.css";
 import BackgroundGrid from "@/components/BackgroundGrid/index.vue";
@@ -71,6 +74,10 @@ import useBlockStore from "@/store/modules/block";
 const blockStore = useBlockStore();
 // 引入组件块
 import Block from "@/components/Block/index.vue";
+import { pushRecord, undo, redo } from "@/hooks/historySnapShot";
+import emitter from "@/utils/eventBus";
+import { openContextMenus } from "@/components/Menu/index.js";
+import BlockResize from "@/components/BlockResize/index.vue";
 
 //#region 设置标尺和画布相关的代码
 //rectWidth,rectHeight为画布宽高
@@ -178,12 +185,16 @@ const focusData = computed(() => {
 });
 
 // 记录鼠标移动拖拽的信息
-let dragState = null;
+let dragState = {
+  isDraging: false, // 是否拖拽中
+};
 
 // 记录最后一个选中的组件的下标
 const lastSelectIndex = ref(-1); // -1表示没有选中的
 // 最后一个选中的组件
 const lastSelectBlock = computed(() => {
+  // 保存到store
+  blockStore.lastSelectBlock = blockStore.blockList[lastSelectIndex.value];
   return blockStore.blockList[lastSelectIndex.value];
 });
 
@@ -282,6 +293,8 @@ const handleBlockMousedown = (e, block, index) => {
     })(),
   };
 
+  // console.log(blockStore.lastSelectBlock)
+
   // 再在document绑定mousemove和mouseup事件
   document.addEventListener("mousemove", handleMouseMove);
   document.addEventListener("mouseup", handleMouseup);
@@ -292,10 +305,18 @@ const handleCanvasMousedown = () => {
   blockStore.blockList.forEach((item) => {
     item.focus = false;
   });
+  blockStore.lastSelectBlock = null;
+  lastSelectIndex.value = -1;
 };
 
 // 点击组件后移动鼠标的回调
 const handleMouseMove = (e) => {
+  // 只有刚移动的时候触发，不会持续触发
+  if (!dragState.isDraging) {
+    dragState.isDraging = true;
+    // 触发全局事件总线上的开始命令
+    emitter.emit("startCommand");
+  }
   // 鼠标移动到的位置
   let { clientX, clientY } = e;
 
@@ -344,6 +365,11 @@ const handleMouseMove = (e) => {
 
 // 移动组件后鼠标抬起的回调
 const handleMouseup = () => {
+  if (dragState.isDraging) {
+    dragState.isDraging = false;
+    // 触发全局事件总线上的结束命令
+    emitter.emit("endCommand");
+  }
   // 鼠标抬起后清除事件
   document.removeEventListener("mousemove", handleMouseMove);
   document.removeEventListener("mouseup", handleMouseup);
@@ -351,9 +377,25 @@ const handleMouseup = () => {
   // 鼠标抬起清除辅助线
   showLine.horizontalLine = null;
   showLine.verticalLine = null;
+
+  // 移动后鼠标抬起，记录此时的快照
+  // pushRecord();
 };
 //#endregion
 
+// 组件右击的回调函数
+const handelBlockContextmenu = (e, block) => {
+  console.log("右击");
+  console.log(e, block);
+  openContextMenus(e);
+};
+
+// 监听focusData修改仓库中的focusData
+watchEffect(() => {
+  blockStore.focusData = focusData.value;
+}, focusData);
+
+import { jsPlumb } from "jsplumb";
 // 生命周期钩子
 onMounted(() => {
   handleResize();
@@ -365,6 +407,42 @@ onMounted(() => {
 
   // 将画布DOM保存一份到store
   containerStore.canvasDOM = canvasRef.value;
+
+  let plumbIns = jsPlumb.getInstance();
+
+  //公共配置
+  let globalConfig = {
+    anchor: ["Bottom", "Top", "Left", "Right"],
+    connector: "Straight",
+    endpoint: "Blank",
+    paintStyle: { stroke: "black", strokeWidth: 1 },
+    overlays: [["Arrow", { width: 5, length: 5, location: 1 }]],
+    endpointStyle: {
+      fill: "lightgray",
+      outlineStroke: "darkgray",
+      outlineWidth: 2,
+    },
+  };
+
+  nextTick(() => {
+    let renderList = [];
+    blockStore.blockList.forEach((block) => {
+      if (block.to.length > 0) {
+        block.to.forEach((item) => {
+          renderList.push({
+            source: block.id,
+            target: item,
+            ...globalConfig,
+          });
+        });
+      }
+    });
+    plumbIns.ready(() => {
+      renderList.forEach((item) => {
+        plumbIns.connect(item);
+      });
+    });
+  });
 });
 </script>
 

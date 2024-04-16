@@ -1,6 +1,7 @@
 <!-- 编辑页左侧物料区，放置用于拖拽的组件块 -->
 <template>
   <div class="editor-left" v-show="containerStore.material.isShowMaterial">
+    <!-- <CollapseFiled></CollapseFiled> -->
     <div class="lib-memu">
       <div class="symbol-lib svg">
         <SvgIcon iconName="icon-lib"></SvgIcon>
@@ -36,6 +37,10 @@ import useBlockStore from "@/store/modules/block";
 const blockStore = useBlockStore();
 // 引入配置文件
 import { config } from "@/utils/config.js";
+import { pushRecord } from "@/hooks/historySnapShot";
+// 引入全局事件总线
+import emitter from "@/utils/eventBus";
+import CollapseFiled from "@/components/CollapseFiled/index.vue";
 
 // 目前拖动的组件
 let currentComponent = null;
@@ -52,8 +57,11 @@ const handleDragStart = (e, component) => {
   containerStore.canvasDOM.addEventListener("dragleave", handleDragLeave);
   // drop松手时，根据拖拽的组件，添加一个组件
   containerStore.canvasDOM.addEventListener("drop", handleDrop);
-  
+
   currentComponent = component;
+
+  // 触发全局事件总线上的开始命令
+  emitter.emit("startCommand");
 };
 
 // 移入目标的回调
@@ -73,13 +81,21 @@ const handleDragLeave = (e) => {
 
 // 在目标元素上松手
 const handleDrop = (e) => {
-  blockStore.blockList.push({
-    ...currentComponent,
-    top: e.offsetY,
-    left: e.offsetX,
-    alignCenter: true, // 松手时希望居中
-  });
+  let blockList = blockStore.blockList;
+  blockStore.blockList = [
+    ...blockList,
+    {
+      top: e.offsetY,
+      left: e.offsetX,
+      alignCenter: true, // 松手时希望居中
+      zIndex: 1,
+      key: currentComponent.key,
+      props: [],
+    },
+  ];
   currentComponent = null; // 置空
+  // 将此时的快照加入到快照队列中
+  // pushRecord();
 };
 
 // 拖拽结束回调
@@ -88,6 +104,9 @@ const handleDragEnd = () => {
   containerStore.canvasDOM.removeEventListener("dragover", handleDragOver);
   containerStore.canvasDOM.removeEventListener("dragleave", handleDragLeave);
   containerStore.canvasDOM.removeEventListener("drop", handleDrop);
+
+  // 触发全局事件总线上的结束命令
+  emitter.emit("endCommand");
 };
 </script>
 

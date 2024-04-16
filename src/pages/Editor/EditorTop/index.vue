@@ -1,6 +1,6 @@
 <!-- 编辑页顶部的菜单区，放置各种各样的功能按键 -->
 <template>
-  <div class="editor-top">
+  <div class="editor-top" ref="top">
     <!-- 第一层 -->
     <div class="first">
       <!-- 左侧 -->
@@ -32,6 +32,7 @@
               effect="dark"
               content="保存文件"
               placement="bottom"
+              :show-after="500"
             >
               <div
                 class="save"
@@ -48,11 +49,13 @@
               effect="dark"
               content="导出文件"
               placement="bottom"
+              :show-after="500"
             >
               <div
                 class="export"
                 @mouseenter="currentExportIconName = 'icon-export-hover'"
                 @mouseleave="currentExportIconName = 'icon-export'"
+                @click="handleExport"
               >
                 <SvgIcon :iconName="currentExportIconName"></SvgIcon>
               </div>
@@ -129,39 +132,6 @@
         >
           <SvgIcon iconName="icon-rightTwo"></SvgIcon>
         </div>
-        <!-- 撤销按钮 -->
-        <el-tooltip
-          class="box-item"
-          effect="dark"
-          content="撤销"
-          placement="bottom"
-        >
-          <div class="svg undo">
-            <SvgIcon iconName="icon-chexiao"></SvgIcon>
-          </div>
-        </el-tooltip>
-        <!-- 重做按钮 -->
-        <el-tooltip
-          class="box-item"
-          effect="dark"
-          content="重做"
-          placement="bottom"
-        >
-          <div class="svg redo">
-            <SvgIcon iconName="icon-chongzuo"></SvgIcon>
-          </div>
-        </el-tooltip>
-        <!-- 格式刷按钮 -->
-        <el-tooltip
-          class="box-item"
-          effect="dark"
-          content="格式刷"
-          placement="bottom"
-        >
-          <div class="svg">
-            <SvgIcon iconName="icon-geshishua"></SvgIcon>
-          </div>
-        </el-tooltip>
         <!-- 字体选择 -->
         <el-select
           v-model="fontType"
@@ -188,48 +158,17 @@
             :value="item.value"
           />
         </el-select>
-        <!-- 加粗按钮 -->
+        <!-- 按钮合集 -->
         <el-tooltip
+          v-for="button in buttons"
           class="box-item"
           effect="dark"
-          content="加粗 Ctrl+B"
+          :content="button.content"
           placement="bottom"
+          :show-after="500"
         >
-          <div class="svg">
-            <SvgIcon iconName="icon-jiacu"></SvgIcon>
-          </div>
-        </el-tooltip>
-        <!-- 斜体按钮 -->
-        <el-tooltip
-          class="box-item"
-          effect="dark"
-          content="斜体 Ctrl+I"
-          placement="bottom"
-        >
-          <div class="svg">
-            <SvgIcon iconName="icon-xieti"></SvgIcon>
-          </div>
-        </el-tooltip>
-        <!-- 下划线按钮 -->
-        <el-tooltip
-          class="box-item"
-          effect="dark"
-          content="下划线 Ctrl+U"
-          placement="bottom"
-        >
-          <div class="svg">
-            <SvgIcon iconName="icon-xiahuaxian"></SvgIcon>
-          </div>
-        </el-tooltip>
-        <!-- 字体颜色按钮 -->
-        <el-tooltip
-          class="box-item"
-          effect="dark"
-          content="字体颜色"
-          placement="bottom"
-        >
-          <div class="svg">
-            <SvgIcon iconName="icon-zitiyanse"></SvgIcon>
+          <div class="svg" @click="button.handler">
+            <SvgIcon :iconName="button.icon"></SvgIcon>
           </div>
         </el-tooltip>
       </div>
@@ -255,13 +194,48 @@
       </div>
     </div>
   </div>
+  <!-- 导出流程图对话框 -->
+  <el-dialog v-model="dialogVisible" title="预览" width="1000">
+    <div
+      class="imgBox"
+      style="
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        height: 400px;
+        background-color: #f2f2f2;
+        border-radius: 20px;
+      "
+    >
+      <img :src="imgData" alt="" style="width: 50%" />
+    </div>
+    <template #footer>
+      <div class="dialog-footer">
+        <el-button @click="dialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="handleExportConfirm">
+          导出
+        </el-button>
+      </div>
+    </template>
+  </el-dialog>
 </template>
 
 <script setup>
-import { ref, reactive, nextTick } from "vue";
+import { ref, reactive, nextTick, computed } from "vue";
+import html2canvas from "html2canvas";
 // 引入仓库
 import useContainerStore from "@/store/modules/container";
+import useBlockStore from "@/store/modules/block";
 const containerStore = useContainerStore();
+const blockStore = useBlockStore();
+import { undo, redo } from "@/hooks/historySnapShot";
+// 引入命令
+import useCommand from "@/hooks/useCommand.js";
+const { commandMap } = useCommand();
+
+const top = ref(null);
+
 // 保存图标的iconName
 const currentSaveIconName = ref("icon-save");
 // 导出图标的iconName
@@ -412,6 +386,105 @@ const editFileName = function () {
 };
 // 导出为png
 const exportToPNG = function () {};
+// 按钮合集（核心）
+const buttons = reactive([
+  {
+    content: "格式刷",
+    icon: "icon-geshishua",
+    handler: () => {
+      console.log("格式刷");
+    },
+  },
+  {
+    content: "加粗 Ctrl+B",
+    icon: "icon-jiacu",
+    handler: () => {
+      console.log("加粗 Ctrl+B");
+    },
+  },
+  {
+    content: "斜体 Ctrl+I",
+    icon: "icon-xieti",
+    handler: () => {
+      console.log("斜体 Ctrl+I");
+    },
+  },
+  {
+    content: "下划线 Ctrl+U",
+    icon: "icon-xiahuaxian",
+    handler: () => {
+      console.log("下划线 Ctrl+U");
+    },
+  },
+  {
+    content: "字体颜色",
+    icon: "icon-zitiyanse",
+    handler: () => {
+      console.log("字体颜色");
+    },
+  },
+  {
+    content: "撤销",
+    icon: "icon-undo",
+    passiveIcon: "icon-undo-no",
+    activeIcon: "icon-undo",
+    handler: () => {
+      commandMap.undo();
+    },
+  },
+  {
+    content: "重做",
+    icon: "icon-redo",
+    passiveIcon: "icon-redo-no",
+    activeIcon: "icon-redo",
+    handler: () => {
+      commandMap.redo();
+    },
+  },
+  {
+    content: "置顶",
+    icon: "icon-placeTop",
+    handler: () => {
+      commandMap.placeTop();
+    },
+  },
+  {
+    content: "置底",
+    icon: "icon-placeBottom",
+    handler: () => {
+      commandMap.placeBottom();
+    },
+  },
+  {
+    content: "删除",
+    icon: "icon-delete",
+    handler: () => {
+      commandMap.delete();
+    },
+  },
+]);
+// 控制导出图片对话课的显示
+const dialogVisible = ref(false);
+
+// 要导出的图片路径
+let imgData = ref("");
+// 导出按钮的回调
+function handleExport() {
+  dialogVisible.value = true;
+  let element = containerStore.canvasDOM;
+  html2canvas(element).then((canvas) => {
+    imgData.value = canvas.toDataURL("image/png");
+  });
+}
+function handleExportConfirm() {
+  let element = containerStore.canvasDOM;
+  html2canvas(element).then((canvas) => {
+    const link = document.createElement("a");
+    link.href = imgData;
+    link.download = "exported-image.png";
+    link.click();
+  });
+}
 </script>
 
 <style lang="scss" scoped>

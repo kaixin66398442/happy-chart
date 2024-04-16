@@ -94,6 +94,7 @@ watchEffect(() => {
   height: 50px;
   border-top: 1px solid #e1e1e1;
   background-color: #eef0f5;
+  z-index: 9999;
   .adaptation {
     height: 100%;
     display: flex;
