@@ -5,7 +5,7 @@ import { onUnmounted, watch } from "vue"
 import useBlockStore from "@/store/modules/block"
 import deepcopy from "deepcopy"
 import getUUID from '@/utils/getUUID.js'
-const blockStore = useBlockStore()
+const blockStore = useBlockStore()  
 
 export default function useCommand() {
     const state = {

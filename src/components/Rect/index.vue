@@ -1,5 +1,9 @@
 <template>
-  <div class="rect" :style="styles"></div>
+  <div class="rect" :style="styles">
+    <div class="content" :style="contentStyles">
+      {{ props.data.props?.text || "" }}
+    </div>
+  </div>
 </template>
 
 <script setup>
@@ -11,11 +15,19 @@ const styles = computed(() => {
     height: props.data?.height + "px",
   };
 });
-console.log(styles.value);
+const contentStyles = computed(() => {
+  return {
+    color: props.data.props?.color,
+    fontSize: props.data.props?.size,
+  };
+});
 </script>
 
 <style lang="scss" scoped>
 .rect {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   width: 100px;
   height: 50px;
   border: 2px solid #000;

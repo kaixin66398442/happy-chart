@@ -48,6 +48,15 @@ register({
     preview: () => RectPreview,
     render: () => Rect,
     key: 'rect',
+    props: {
+        text: createInputProp('文本内容'),
+        color: createColorProp('文本颜色'),
+        size: createSelectProp('字体大小', [
+            { label: '14px', value: '14px', },
+            { label: '20px', value: '20px' },
+            { label: '24px', value: '24px' },
+        ])
+    }
 })
 
 register({
@@ -55,6 +64,15 @@ register({
     preview: () => RoundedRectPreview,
     render: () => RoundedRect,
     key: 'roundedRect',
+    props: {
+        text: createInputProp('文本内容'),
+        color: createColorProp('文本颜色'),
+        size: createSelectProp('字体大小', [
+            { label: '14px', value: '14px', },
+            { label: '20px', value: '20px' },
+            { label: '24px', value: '24px' },
+        ])
+    }
 })
 
 export let config = {

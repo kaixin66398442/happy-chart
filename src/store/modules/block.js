@@ -11,37 +11,62 @@ const useBlockStore = defineStore('block', {
                 id: 'item1',
                 to: ['item2', 'item3'],
                 key: 'rect',
-                top: 100,
-                left: 500,
+                top: 50,
+                left: 250,
                 zIndex: 1,
+                props: {
+                    text: 'item1',
+                    color: 'red',
+                    size: '14px'
+                }
             }, {
                 id: 'item2',
                 to: ['item4', 'item5'],
                 key: 'rect',
-                top: 300,
-                left: 300,
+                top: 150,
+                left: 150,
                 zIndex: 1,
+                props: {
+                    text: 'item2',
+                    color: 'red',
+                    size: '14px'
+                }
             }, {
                 id: 'item3',
                 to: ['item5'],
                 key: 'rect',
-                top: 300,
-                left: 700,
+                top: 150,
+                left: 350,
                 zIndex: 1,
+                props: {
+                    text: 'item3',
+                    color: 'red',
+                    size: '14px'
+                }
             }, {
                 id: 'item4',
                 to: [],
                 key: 'rect',
-                top: 500,
-                left: 100,
+                top: 250,
+                left: 50,
                 zIndex: 1,
+                props: {
+                    text: 'item4',
+                    color: 'red',
+                    size: '14px'
+                }
             }, {
                 id: 'item5',
                 to: [],
                 key: 'rect',
-                top: 500,
-                left: 900,
+                top: 250,
+                left: 450,
                 zIndex: 1,
+                props: {
+                    text: 'item5',
+                    color: 'red',
+                    size: '14px'
+                }
             },],
             // 记录画布容器的key值
             editorContainerKey: getUUID(),
