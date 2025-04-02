@@ -36,7 +36,7 @@ const containerStore = useContainerStore();
 import useBlockStore from "@/store/modules/block";
 const blockStore = useBlockStore();
 // 引入配置文件
-import { config } from "@/utils/config.js";
+import { config } from "@/utils/config";
 import { pushRecord } from "@/hooks/historySnapShot";
 // 引入全局事件总线
 import emitter from "@/utils/eventBus";

@@ -32,7 +32,7 @@ import { ref, onMounted, onBeforeUnmount, computed, provide } from "vue";
 import MenuItem from "./MemuItem/index.vue";
 
 // 引入命令
-import useCommand from "@/hooks/useCommand.js";
+import useCommand from "@/hooks/useCommand";
 const { commandMap } = useCommand();
 
 const isShow = ref(true);

@@ -90,7 +90,7 @@
               size="small"
             >
               <el-option
-                v-for="(type, index) in containerStore.operator.gridTypeArr"
+                v-for="(type) in containerStore.operator.gridTypeArr"
                 :key="type.value"
                 :label="type.label"
                 :value="type.value"
@@ -139,7 +139,7 @@
     <el-tabs type="border-card" stretch v-else>
       <el-tab-pane label="样式">
         <el-form labelPosition="top">
-          <el-form-item v-for="item in content" :label="item.propConfig.label">
+          <el-form-item v-for="item in content" :label="item.propConfig.label" :key="item.propName">
             <ElInput
               v-if="item.propConfig.type === 'input'"
               v-model="blockStore.lastSelectBlock.props[item.propName]"
@@ -154,6 +154,7 @@
             >
               <ElOption
                 v-for="option in item.propConfig.options"
+                :key="option.value"
                 :label="option.label"
                 :value="option.value"
               ></ElOption>
@@ -173,10 +174,10 @@ const containerStore = useContainerStore();
 import useBlockStore from "@/store/modules/block";
 const blockStore = useBlockStore();
 // 引入命令
-import useCommand from "@/hooks/useCommand.js";
+import useCommand from "@/hooks/useCommand";
 
 // 引入配置文件
-import { config } from "@/utils/config.js";
+import { config } from "@/utils/config";
 const component = computed(() => {
   if (blockStore.lastSelectBlock) {
     return config.componentMap[blockStore.lastSelectBlock.key];

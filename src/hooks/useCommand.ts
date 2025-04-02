@@ -1,10 +1,10 @@
 // 命令相关的组合式函数
 // 引入全局事件总线
 import emitter from "@/utils/eventBus"
-import { onUnmounted, watch } from "vue"
+import { onUnmounted } from "vue"
 import useBlockStore from "@/store/modules/block"
 import deepcopy from "deepcopy"
-import getUUID from '@/utils/getUUID.js'
+import getUUID from '@/utils/getUUID'
 const blockStore = useBlockStore()  
 
 export default function useCommand() {

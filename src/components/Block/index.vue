@@ -8,7 +8,7 @@
 <script setup>
 import { computed, onMounted, onUnmounted, ref } from "vue";
 // 引入配置文件
-import { config } from "@/utils/config.js";
+import { config } from "@/utils/config";
 
 const props = defineProps(["data"]);
 const blockData = props.data; // blockData是一个响应式数据

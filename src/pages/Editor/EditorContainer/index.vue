@@ -76,7 +76,7 @@ const blockStore = useBlockStore();
 import Block from "@/components/Block/index.vue";
 import { pushRecord, undo, redo } from "@/hooks/historySnapShot";
 import emitter from "@/utils/eventBus";
-import { openContextMenus } from "@/components/Menu/index.js";
+import { openContextMenus } from "@/components/Menu";
 import BlockResize from "@/components/BlockResize/index.vue";
 
 //#region 设置标尺和画布相关的代码

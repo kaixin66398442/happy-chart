@@ -100,7 +100,7 @@ import { useRouter } from "vue-router";
 // 导入表单验证规则
 import formRules from "./validate";
 // 导入仓库
-import useUserStore from "@/store/modules/user.js";
+import useUserStore from "@/store/modules/user.ts";
 // 控制登录注册盒子切换
 const isLoginShow = ref(true);
 // 收集登录表单信息
@@ -135,7 +135,7 @@ const login = async () => {
     // 通知仓库发送请求
     await userStore.userLogin(loginForm);
     // 路由跳转
-    $router.push({ path: "/home" });
+    $router.push({ path: "/" });
     // 登录成功提示信息
     ElNotification({
       type: "success",
@@ -253,3 +253,4 @@ const register = async () => {
   }
 }
 </style>
+@/store/modules/user

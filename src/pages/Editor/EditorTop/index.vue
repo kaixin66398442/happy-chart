@@ -161,6 +161,7 @@
         <!-- 按钮合集 -->
         <el-tooltip
           v-for="button in buttons"
+          :key="button.icon"
           class="box-item"
           effect="dark"
           :content="button.content"
@@ -231,7 +232,7 @@ const containerStore = useContainerStore();
 const blockStore = useBlockStore();
 import { undo, redo } from "@/hooks/historySnapShot";
 // 引入命令
-import useCommand from "@/hooks/useCommand.js";
+import useCommand from "@/hooks/useCommand";
 const { commandMap } = useCommand();
 
 const top = ref(null);
