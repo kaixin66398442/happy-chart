@@ -1,7 +1,6 @@
 // 注册物料组件，配置组件对应的映射关系的配置文件
 // componentList存储所有的物料
 // componentMap中的key对应组件的映射关系
-
 import Text from '@/components/Text/index.vue'
 import TextPreview from '@/components/TextPreview/index.vue'
 import Rect from '@/components/Rect/index.vue'
