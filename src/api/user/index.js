@@ -4,7 +4,7 @@ import request from "@/utils/request";
 
 // user相关接口
 // const baseURL = 'http://127.0.0.1:3007' // 本地
-const baseURL = 'https://happy-chart-server.vercel.app/' // vercel
+const baseURL = 'https://happy-chart-server.vercel.app' // vercel
 // 登录
 const loginURL = baseURL + '/api/login'
 // 注册
