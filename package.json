@@ -31,6 +31,7 @@
   "devDependencies": {
     "@types/node": "^22.13.17",
     "@vitejs/plugin-vue": "^4.5.2",
+    "terser": "^5.44.1",
     "typescript": "^5.8.2",
     "vite": "^5.0.8",
     "vite-plugin-svg-icons": "^2.0.1"
